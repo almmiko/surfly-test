@@ -4,7 +4,6 @@ const socketIo = require('socket.io');
 
 const { initSocketApp } = require('./app');
 
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);

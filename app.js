@@ -1,21 +1,43 @@
-let userCounter = 0;
+const { generateID, generateColor } = require('./utils');
+
+const editorState = {
+    text: '',
+    users: {}
+};
 
 /**
  * @param {SocketIO.Server} io
  */
 function initSocketApp(io) {
     io.on('connection', (socket) => {
-        const userId = userCounter++;
-        console.log(`User connected, id: ${userId}`);
+        onConnection(socket);
 
-        // emit `user-connected` event to all open connections except this
-        socket.broadcast.emit('user-connected', { userId });
+        socket.on('update-state', (state) => {
 
-        socket.on('disconnect', () => {
-            console.log(`User disconnected, id: ${userId}`);
-            socket.broadcast.emit('user-disconnected', { userId });
-        });
+            //todo handle state
+            console.log(state);
+        })
     });
 }
+
+function onConnection(socket) {
+    const user = {
+        id: generateID(),
+        color: generateColor(),
+        cursorPosition: 0,
+        selectedTextPosition: 0,
+    }
+
+    editorState.users[user.id] = user;
+
+    // emit `user-connected` event to all open connections except this
+    socket.broadcast.emit('user-connected', { id: user.id });
+}
+
+// function onDisconnect() {
+//     socket.on('disconnect', () => {
+//         socket.broadcast.emit('user-disconnected', { userId });
+//     });
+// }
 
 module.exports = { initSocketApp };
